@@ -147,7 +147,9 @@ def main():
 
             if status == 0:
                 print(colored("Uploaded file {}: ".format(count), "cyan") +
-                      colored("\"{}\"".format(row['file_name']), "magenta"))
+                      colored("{} {} v.{} ({}), \"{}\"".format(
+                          row['vendor'], row['device_name'], row['version'], row['release_date'], row['file_name']),
+                          "magenta"))
                 count += 1
             else:
                 print(r.text)
