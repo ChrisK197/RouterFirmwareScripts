@@ -58,14 +58,12 @@ def plugins(server_url):
 
 # Taken from FACT_Core API
 def create_uid(input_data: bytes) -> str:
-    '''
+    """
     generate a UID (unique identifier) SHA256_SIZE for a byte string containing data (e.g. a binary)
     :param input_data: the data to generate the UID for
     :return: a string containing the UID
-    '''
+    """
     hash_value = hashlib.sha256(input_data).hexdigest()
-    if isinstance(input_data, bytes):
-        size = len(input_data)
     if isinstance(input_data, str):
         size = len(input_data.encode('utf-8'))
     else:
@@ -125,8 +123,6 @@ def main():
                       colored("{} {} v.{} ({}), \"{}\"".format(
                           row['vendor'], row['device_name'], row['version'], row['release_date'], row['file_name']),
                           "magenta"))
-                server_status = server(args.server)
-                queue = server_status["system_status"]["backend"]["analysis"]["current_analyses"]
                 if count >= args.concurrent:
                     queueloop()
                 count += 1
