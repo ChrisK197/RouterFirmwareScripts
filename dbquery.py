@@ -7,6 +7,18 @@ import sys
 #  https://pymongo.readthedocs.io/en/stable/tutorial.html
 
 
+def argparser():
+    parser = argparse.ArgumentParser(
+        description='Analyses software components for CVEs')
+    parser.add_argument('-l', '--lookup', default="null",
+                        help="Looks up all of the firmwares associated with a software component")
+    parser.add_argument('-c', '--count', action="store_true",
+                        help="Counts the number of CVEs associated with each file that has at least one CVE")
+    parser.add_argument('-m', '--missing', action="store_true",
+                        help="Counts all of the files without CVEs associated")
+    return parser.parse_args()
+
+
 def connect():
     # Connection parameters (default for FACT)
     #   need to change the host parameter
@@ -86,10 +98,6 @@ def main():
         count_cve(file_objects)
     if args.missing:
         no_cve(file_objects)
-    for i in file_objects.find():
-        if 'plugin_version' not in i['processed_analysis']['cpu_architecture'] or 'plugin_version' not in \
-                i['processed_analysis']['file_hashes']:
-            pprint(i)
 
 
 if __name__ == '__main__':
