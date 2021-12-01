@@ -41,18 +41,6 @@ def connect():
     return db.file_objects
 
 
-def argparser():
-    parser = argparse.ArgumentParser(
-        description='Analyses software components for CVEs')
-    parser.add_argument('-l', '--lookup', default="null",
-                        help="Looks up all of the firmwares associated with a software component")
-    parser.add_argument('-c', '--count', action="store_true",
-                        help="Counts the number of CVEs associated with each file that has at least one CVE")
-    parser.add_argument('-m', '--missing', action="store_true",
-                        help="Counts all of the files without CVEs associated")
-    return parser.parse_args()
-
-
 def software_lookup(file_objects, filename):
     components = []
     for i in file_objects.find({"file_name": filename}):
