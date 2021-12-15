@@ -4,6 +4,7 @@ import warnings
 
 from pprint import pprint
 from pymongo import MongoClient
+from collections import defaultdict
 import sys
 
 # Referenced from the PyMongo Tutorial
@@ -29,7 +30,7 @@ def connect():
     #   need to change the host parameter
     username = "fact_admin"
     password = "6fJEb5LkV2hRtWq0"
-    host = "192.168.253.130"
+    host = "192.168.253.128"
     port = "27018"
     db_name = "fact_main"
     auth_db = "admin"
@@ -64,32 +65,30 @@ def count_cve(file_objects):
     field = "processed_analysis.software_components.summary"
     query = {"processed_analysis.cve_lookup.summary": {"$exists": True, "$not": {"$size": 0}}}
     data = file_objects.distinct(field, query=query)
-    unique = {}
+    unique = defaultdict(int)
+    zero_cves = set()
     for i in data:
         data2 = file_objects.find({"processed_analysis.software_components.summary": i,
                                    "processed_analysis.cve_lookup.cve_results": {"$not": {"$size": 0}}})
         for j in data2:
             if 'cve_lookup' not in j['processed_analysis']:
-                print(j['processed_analysis']['software_components']['summary'])
+                # print(j['processed_analysis']['software_components']['summary'])
                 continue
             results = j['processed_analysis']['cve_lookup']['cve_results']
-            if len(results) == 0:
+            if isinstance(results, str):
                 continue
-            elem = i.strip().split(' ')[0]
-            try:
-                if str(elem) not in unique or len(results[list(results)[0]]) > unique[str(elem)]:
-                    unique[str(elem)] = len(results[list(results)[0]])
-            except TypeError:
-                pprint(j)
-                # print(results)
-                return
-                # print(j['file_name']) It's all the same
-                # print(i)
-                # print(j['processed_analysis']['software_components']['summary'])
-                break
+            if len(results) == 0:
+                zero_cves.update(j['processed_analysis']['software_components']['summary'])
+                continue
+            elem = i.strip().rsplit(' ', 1)[0]
+            # results is a single element dictionary with the name of the software component as the key and a
+            # dictionary of CVEs as the value. Thus, results[list(results)[0]] is the dictionary of CVEs
+            if len(results[list(results)[0]]) > unique[elem]:
+                unique[elem] = len(results[list(results)[0]])
     for i in unique:
-        print(i + ": " + str(unique[i]))
+        print("{}: {}".format(i, unique[i]))
     print("Count CVE -- total number with CVEs: {}".format(len(unique)))
+    # print(zero_cves)
     '''
     components = {}
     for i in file_objects.find():
@@ -170,7 +169,7 @@ def main():
     if args.lookup != 'null':
         software_lookup(file_objects, args.lookup)
     if args.count:
-        alt3_count_cve(file_objects)
+        # alt3_count_cve(file_objects)
         count_cve(file_objects)
         '''
         c1 = alt_count_cve(file_objects)
